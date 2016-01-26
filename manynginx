@@ -1,0 +1,26 @@
+#!/bin/bash
+DIR=/tmp/simple/nginx
+mkdir -p $DIR
+cat - << EOF  > $DIR/index.html
+<!DOCTYPE html>
+<html> <body> <center>
+<h1><p>Docker Nginx Demo</p>
+<p id="demo"></p></h1>
+
+<script>
+window.onload = function myFunction() {
+    var out = "Host: " + location.host;
+    document.getElementById("demo").innerHTML = out;
+}
+</script>
+
+</body> </html>
+EOF
+
+for i in {1..10}
+do
+   PORT=$((10000 + $i))
+   NAME="nginx_$i"
+   ( docker stop $NAME ; docker rm $NAME ) > /dev/null 2>&1
+   docker run -d --name $NAME -v $DIR:/usr/share/nginx/html:ro -p $PORT:80 nginx 
+done
